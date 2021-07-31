@@ -1,0 +1,15 @@
+//@extend-elements
+
+
+//original selectors
+//[class^="lg-icon-"], [class*=" lg-icon-"]
+%extend_icon_font {
+	content: attr(data-icon);
+	font-family: $font_name;
+	speak: never;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+}

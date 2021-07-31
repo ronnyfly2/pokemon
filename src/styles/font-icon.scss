@@ -1,0 +1,27 @@
+@font-face {
+	font-family: $font_name;
+	src: $url_0;
+	src: $url_1 format("embedded-opentype"), $url_2 format("truetype"), $url_3 format("woff"), $url_4 format("svg");
+	font-weight: normal;
+	font-style: normal;
+	font-display: block;
+}
+[class^="pk-icon-"] {
+	@extend %extend_icon_font;
+}
+[class*=" pk-icon-"] {
+	@extend %extend_icon_font;
+}
+
+.pk-icon-list:before {
+  content: "\61";
+}
+.pk-icon-close:before {
+  content: "\62";
+}
+.pk-icon-search:before {
+  content: "\63";
+}
+.pk-icon-star:before {
+  content: "\64";
+}
