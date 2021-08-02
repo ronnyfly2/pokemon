@@ -1,6 +1,6 @@
 <template lang="pug">
 .search
-  input(type="search" v-model="searchText" @keyup.enter="onClickSearch" placeholder="Search")
+  input(type="text" :value="searchModel" @input="inputFunction" @keyup.enter="onClickSearch" placeholder="Search")
   i.pk-icon-search
 </template>
 <script>
@@ -11,9 +11,22 @@ export default {
       searchText:''
     }
   },
+  computed: {
+    searchModel() {
+      return this.searchText;
+    }
+  },
   methods: {
     onClickSearch() {
-      this.$emit('keyUpEnterSearch', this.searchText)
+      if(this.searchModel){
+        this.$emit('keyUpEnterSearch', this.searchModel);
+      }
+    },
+    inputFunction(e) {
+      this.searchText = e.target.value;
+    },
+    inputClear() {
+      this.searchText = '';
     }
   }
 }
@@ -28,6 +41,7 @@ export default {
     width: 100%;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.04);
     border-radius: 5px;
+    box-sizing: border-box;
     border: 0;
     height: 50px;
     padding-left: 43px;
@@ -38,22 +52,22 @@ export default {
       color: $color_gray_2;
       font-weight: 500;
     }
-    &[type="search"]::-webkit-search-cancel-button{
-      -webkit-appearance: none;
-      margin-right: 12px;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      background: #f5f5f5;
-      color: gray;
-      position: relative;
-      &::after{
-        content: 'x';
-        color: red;
-        font-size: 14px;
-        display: block;
-      }
-    }
+    // &[type="search"]::-webkit-search-cancel-button{
+    //   -webkit-appearance: none;
+    //   margin-right: 12px;
+    //   border-radius: 50%;
+    //   width: 30px;
+    //   height: 30px;
+    //   background: #f5f5f5;
+    //   color: gray;
+    //   position: relative;
+    //   &::after{
+    //     content: 'x';
+    //     color: red;
+    //     font-size: 14px;
+    //     display: block;
+    //   }
+    // }
   }
   i{
     color:#BFBFBF;

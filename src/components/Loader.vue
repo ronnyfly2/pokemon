@@ -1,7 +1,7 @@
 <template lang="pug">
 .load_content()
   .loader
-    img(alt="Vue logo" src="../assets/imgs/Loader.svg")
+    img(alt="Pokemon loader" src="../assets/imgs/Loader.svg")
     .led
 </template>
 <script>
@@ -22,7 +22,6 @@ export default {
   justify-content: center;
   z-index: 99;
   animation: fadeInLoad .7s ease-in-out;
-
   .loader{
     width: 106px;
     height: 106px;

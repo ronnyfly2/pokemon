@@ -1,30 +1,60 @@
 <template lang="pug">
   #app
-    #nav
-      router-link(to="/") Home |
-      router-link(to="/about") About
-    router-view
+    transition(
+      :name="$store.state.pageTransition.name"
+      :mode="$store.state.pageTransition.mode"
+      v-on:after-enter="afterEnter"
+      v-on:after-leave="afterLeave")
+      router-view.transition
 </template>
-
+<script>
+import Store from "./store/index";
+export default {
+  methods: {
+    afterEnter: () => {
+      window.scrollTo(0, 0);
+    },
+    afterLeave: () => {
+      Store.commit("setPageTransition", "fade");
+    }
+  }
+}
+</script>
 <style lang="scss">
+@import './styles/variables.scss';
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Lato', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+}
+.transition {
+  overflow: hidden;
+}
+.router-view {
+  &-enter-active,
+  &-leave-active {
+    position: fixed;
+    width: 100%;
+    background: $color_bg-gray;
+    min-height: 100vh;
+    top: 0;
+  }
 }
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+.router-view-enter-active {
+  transition: transform 0.8s ease-in;
+  z-index: 99;
+  transform: translateX(100%);
+}
+.router-view-enter-to {
+  z-index: 99;
+  transform: translateX(0%);
+}
+.router-view-leave-active {
+  z-index: -1;
+}
+.router-view-leave-to {
+  z-index: -1;
 }
 </style>

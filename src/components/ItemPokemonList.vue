@@ -1,18 +1,16 @@
 <template lang="pug">
 li.item_pokemon(@click="openModal")
   span {{ pokemonName }}
-  i.pk-icon-star(:class="isFavorite&&'favorite'")
+  slot()
 </template>
 <script>
+
 export default {
   name:'ItemPokemonList',
   props: {
-    pokemonName: '',
-
-  },
-  data() {
-    return {
-      isFavorite: false
+    pokemonName: {
+      type: String,
+      default: ()=>''
     }
   },
   methods: {
@@ -36,22 +34,9 @@ li{
     margin-bottom: 10px;
   }
   i{
-    background: $color_white_1;
-    box-sizing: border-box;
-    width: 44px;
-    height: 44px;
-    display: block;
-    border-radius: 50%;
-    font-size: 1.8rem;
-    color: $color_gray_2;
-    padding-top: 7px;
-    cursor: pointer;
     position: absolute;
     right: 10px;
     top:9px;
-    &:hover{
-      color:$color_yellow;
-    }
   }
   span{
     font-weight: 500;
@@ -60,6 +45,7 @@ li{
     display: block;
     text-align: left;
     line-height: 1.2;
+    text-transform: capitalize;
   }
 }
   
