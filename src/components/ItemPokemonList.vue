@@ -1,6 +1,6 @@
 <template lang="pug">
-li.item_pokemon(@click="openModal")
-  span {{ pokemonName }}
+li.item_pokemon
+  span(@click="openModal") {{ pokemonName }}
   slot()
 </template>
 <script>
@@ -45,7 +45,11 @@ li{
     display: block;
     text-align: left;
     line-height: 1.2;
+    cursor: pointer;
     text-transform: capitalize;
+    &:hover{
+      text-decoration: underline;
+    }
   }
 }
   

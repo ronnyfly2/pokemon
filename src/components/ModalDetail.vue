@@ -29,7 +29,6 @@
       i.pk-icon-close(@click="closeModal")
 </template>
 <script>
-import axios from 'axios';
 import StarFavorite from "./StarFavorite";
 import ButtonPokemon from "@/components/ButtonPokemon";
 export default {
