@@ -210,6 +210,7 @@ export default {
     padding: 18px 0;
     box-shadow: 0px -5px 4px rgba(0, 0, 0, 0.05);
     box-sizing: border-box;
+    animation: fadeIn 3s ease-in-out;
   }
 }
 .list_pokemon{
@@ -253,5 +254,9 @@ ul{
     margin-bottom:25px;
   }
 
+}
+@keyframes fadeIn{
+  0%{opacity: 0;}
+  100%{opacity: 1;}
 }
 </style>
