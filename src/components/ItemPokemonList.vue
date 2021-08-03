@@ -15,7 +15,7 @@ export default {
   },
   methods: {
     openModal() {
-      
+      this.$emit('openModalDetail', this.pokemonName)
     }
   },
 }

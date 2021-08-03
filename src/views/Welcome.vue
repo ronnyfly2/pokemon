@@ -34,10 +34,6 @@ export default {
   }
   p{
     margin-bottom:50px;
-    font-size: 18px;
-    color: $color_gray_1;
-    font-weight: 500;
-    line-height: 1.4;
   }
 }
 .welcome_pikachu{

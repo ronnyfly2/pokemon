@@ -4,20 +4,24 @@
     transition(name="fade")
       loader(v-show="isLoading")
     search-input.search_content(ref="searchRef" @keyUpEnterSearch="searchPokemon")
-    ul(v-if="!isActiveFavoritesList && !isPokemonItemActives" @scroll="loadMorePokemons")
-      ItemPokemonList(:pokemonName="pokemon.name" v-for="(pokemon, key) in pokemonList" :key="key")
+    ul(v-if="!isActiveFavoritesList && !isPokemonItemActives && !isEmpty" @scroll="loadMorePokemons")
+      ItemPokemonList(:pokemonName="pokemon.name" v-for="(pokemon, key) in pokemonList" :key="key" @openModalDetail="viewDetail")
         star-favorite(:isFavorite="pokemon.isFavorite" :pokemon="pokemon")
-    ul(v-else-if="!isActiveFavoritesList && isPokemonItemActives")
+    ul(v-else-if="!isActiveFavoritesList && isPokemonItemActives && !isEmpty")
       ItemPokemonList(:pokemonName="pokemonItem[pokemonItem.length -1].name")
         star-favorite(:isFavorite="pokemonItem[pokemonItem.length -1].isFavorite" :pokemon="pokemonItem[pokemonItem.length -1]")
+    .empty_data(v-else-if="isEmpty")
+      h1 Uh-oh!
+      p You look lost on your journey!
+      button-pokemon(:text="'Go back home'" :onClickEvent="getPokemonList")
     ul(v-else)
       ItemPokemonList(:pokemonName="pokemon.name" v-for="(pokemon, key) in favorites" :key="key")
         star-favorite(:isFavorite="pokemon.isFavorite" :pokemon="pokemon")
-  footer
+  footer(v-if="!isEmpty")
     .content_footer
       button-pokemon(:text="'All'" :iconName="'pk-icon-list'" :onClickEvent="getPokemonList")
       button-pokemon(:text="'Favorites'" :iconName="'pk-icon-star'" :isDisabled="favorites.length>0?false:true" :onClickEvent="getFavoritesList")
-  //-ModalDetail()
+  ModalDetail(v-if="showModalDetail" :pokemonDetail="pokemonItem[pokemonItem.length -1]" @closeModal="closeModalDetail")
 </template>
 
 <script>
@@ -28,7 +32,7 @@ import ItemPokemonList from "@/components/ItemPokemonList";
 import ButtonPokemon from "@/components/ButtonPokemon";
 import ModalDetail from "@/components/ModalDetail";
 import StarFavorite from "@/components/StarFavorite";
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: "Home",
@@ -46,6 +50,8 @@ export default {
       isFavorite: false,
       isActiveFavoritesList: false,
       isPokemonItemActives: false,
+      isEmpty: false,
+      showModalDetail: false,
       offset: 0,
       limit: 25,
       quantity: 25,
@@ -63,8 +69,17 @@ export default {
     this.getPokemon();
   },
   methods: {
+    ...mapActions(['removeNameNotFavorite']),
+    viewDetail(namePokemon) {
+      this.setText = namePokemon.toLowerCase();
+      let name = `/${this.setText}`;
+      this.getPokemon(name, 'modal')
+    },
+    closeModalDetail() {
+      this.getPokemonList();
+      this.showModalDetail = false;
+    },
     searchPokemon (text) {
-      console.log('text', text);
       this.setText = text.toLowerCase();
       let setText = `/${this.setText}`;
       this.getPokemon(setText);
@@ -79,8 +94,9 @@ export default {
       this.$refs.searchRef.inputClear();
       this.isActiveFavoritesList=false;
       this.isPokemonItemActives= false;
+      this.isEmpty = false;
     },
-    getPokemon(param='') {
+    getPokemon(param, modal) {
       let params = {};
       if(!param){
         params = {
@@ -88,27 +104,41 @@ export default {
           limit: this.limit
         }
       }
+      let api = param?`${this.urlApi}pokemon${param}`:`${this.urlApi}pokemon`
       this.isLoading = true;
-      axios.get(`${this.urlApi}pokemon${param}`, {params}).then(({data})=>{
+      axios.get(api, {params}).then(({data})=>{
         if(!param){
           this.offset = this.offset + this.quantity;
           this.setFavorite(data.results);
           this.count = data.count;
         }else{
-          this.setFavorite(data.forms, param);
+          let modalData = data.forms;
+          modalData[0].weight = data.weight;
+          modalData[0].height = data.height;
+          modalData[0].types = data.types;
+          modalData[0].image = data.sprites.other['official-artwork'].front_default
+          data = modalData;
+          this.setFavorite(data, param, modal);
         }
+        this.isLoading = false;
+      }).catch((err)=>{
+        this.isEmpty = true;
         this.isLoading = false;
       })
     },
-    getFavorites(param) {
+    getFavorites(param, modal) {
       const indexOfPokemonList = this.pokemonList.findIndex(item =>item.name === this.$store.state.nameNotFavorite)
       if(indexOfPokemonList>=0){
         this.pokemonList[indexOfPokemonList].isFavorite=false;
+        this.removeNameNotFavorite('')
       }
       if(param){
         const indexFavorite = this.$store.state.favorites.findIndex(item => item.name === this.setText);
         if(indexFavorite>=0){
           this.pokemonItem[this.pokemonItem.length-1].isFavorite = true;
+        }
+        if(modal){
+          this.showModalDetail = true;
         }
         return
       }
@@ -123,7 +153,7 @@ export default {
         }
       }
     },
-    setFavorite(pokemons, param) {
+    setFavorite(pokemons, param, modal) {
       [].forEach.call(pokemons, elem =>{
         if(!param){
           this.pokemonList.push({
@@ -140,9 +170,15 @@ export default {
           url: elem.url,
           isFavorite: false,
           pokeminItem: true,
+          weight: elem.weight,
+          height: elem.height,
+          types: elem.types,
+          image: elem.image,
         });
-        this.getFavorites(param);
-        this.isPokemonItemActives= true;
+        this.getFavorites(param, modal);
+        if(!modal){
+          this.isPokemonItemActives= true;
+        }
       });
     },
     loadMorePokemons(e) {
@@ -182,6 +218,7 @@ export default {
   .search_content{
     margin:35px 0 40px 0;
   }
+  padding: 0 30px;
 }
 ul{
   height: calc(100vh - 205px);
@@ -194,14 +231,27 @@ ul{
   opacity: 0;
 }
 .content_footer{
-  max-width: 315px;
   display: flex;
   justify-content: space-between;
   margin: 0 auto;
+  padding: 0 30px;
 }
 @media (min-width: 576px) {
   .content_footer{
     max-width: 570px;
   }
+  .content{
+    padding: 0;
+  }
+}
+.empty_data{
+  margin-top: 50px;
+  h1{
+    margin-bottom: 10px;
+  }
+  p{
+    margin-bottom:25px;
+  }
+
 }
 </style>

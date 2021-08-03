@@ -40,12 +40,8 @@ export default new Vuex.Store({
       payload.isFavorite = true;
       commit('SET_FAVORITES', payload);
     },
-    removeFavoritePokemon({ commit, state }, payload) {
-      const index = state.favorites.findIndex(item => item.name === payload.name);
-      if(index>=0){
-        state.favorites.splice(index, 1);
-        return
-      }
+    removeNameNotFavorite({ commit }, payload) {
+      commit('SET_NAME_NOT_FAVORITE', payload);
     }
   }
 });

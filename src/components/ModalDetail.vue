@@ -1,29 +1,32 @@
 <template lang="pug">
 .modal_overlay
+  .copy_ready(v-if="shared")
+    span This pokemon was shared!
   .modal_content
-    .scene
-      img(:src="imgPokemon")
-    .detail
-      .row_item
-        span
-          b Name:
-          |  {{ dataPokemon.name }}
-      .row_item
-        span
-          b Weight:
-          |  {{ dataPokemon.weight }}
-      .row_item
-        span
-          b Height:
-          |  {{ dataPokemon.height }}
-      .row_item
-        span
-          b Types:
-          |  {{ getTypes(dataPokemon.types) }}
-      .row_item.row_item_footer
-        button-pokemon(:text="'Share to my friends'")
-        star-favorite(:isFavorite="false")
-    i.pk-icon-close(@click="closeModal")
+    .modal_content_child
+      .scene
+        img(:src="pokemonDetail.image")
+      .detail
+        .row_item
+          span
+            b Name:
+            |  {{ pokemonDetail.name }}
+        .row_item
+          span
+            b Weight:
+            |  {{ pokemonDetail.weight }}
+        .row_item
+          span
+            b Height:
+            |  {{ pokemonDetail.height }}
+        .row_item
+          span
+            b Types:
+            |  {{ getTypes(pokemonDetail.types) }}
+        .row_item.row_item_footer
+          button-pokemon(:text="'Share to my friends'" :onClickEvent="shareThis")
+          star-favorite(:isFavorite="pokemonDetail.isFavorite" :pokemon="pokemonDetail")
+      i.pk-icon-close(@click="closeModal")
 </template>
 <script>
 import axios from 'axios';
@@ -35,25 +38,20 @@ export default {
     StarFavorite,
     ButtonPokemon
   },
+  props: {
+    pokemonDetail: {
+      type: Object,
+      default: ()=>{}
+    }
+  },
   data() {
     return {
       imgPokemon: '',
-      urlApi: process.env.VUE_APP_BASE_URL_API,
       dataPokemon: {},
+      shared: false,
     }
   },
-  mounted() {
-    this.getDetailPokemon();
-  },
   methods: {
-    getDetailPokemon() {
-      axios.get(`${this.urlApi}pokemon/charizard`).then(({data})=>{
-        console.log('data', data);
-        //-this.imgPokemon = data.sprites.front_shiny;
-        this.dataPokemon= data;
-        this.imgPokemon = data.sprites.other['official-artwork'].front_default;
-      })
-    },
     getTypes(types=[]) {
       let items = [];
       types.forEach((item)=>{
@@ -62,7 +60,23 @@ export default {
       return items.toString();
     },
     closeModal() {
-
+      this.$emit('closeModal');
+    },
+    shareThis() {
+      let text = Object.values(this.pokemonDetail);
+      let types = text.splice(6, 1);
+      let typesFormar = this.getTypes(types[0]);
+      text.push(typesFormar)
+      const elem = document.createElement('textarea');
+      elem.value = text;
+      document.body.appendChild(elem);
+      elem.select();
+      document.execCommand('copy');
+      document.body.removeChild(elem);
+      this.shared = true;
+      setTimeout(()=>{
+        this.shared = false;
+      }, 3500)
     }
   },
 }
@@ -79,18 +93,25 @@ export default {
   align-items: center;
   justify-content: center;
   .modal_content{
+    width: 100%;
+    padding: 0 30px;
+  }
+  .modal_content_child{
     border-radius: 5px;
     overflow: hidden;
+    max-width: 570px;
     background: white;
     padding-bottom: 20px;
     position: relative;
+    width: 100%;
+    margin: 0 auto;
   }
 }
 .scene{
-  background: url(./../assets/imgs/paisaje.jpg);
+  background: #7fad71 url(./../assets/imgs/paisaje.jpg) no-repeat;
   background-size: cover;
-  background-position: center center;
-  width: 570px;
+  background-position: center -15px;
+  max-width: 570px;
   height: 220px;
   display: flex;
   align-items: center;
@@ -130,5 +151,25 @@ export default {
     opacity: .8;
     cursor: pointer;
   }
+}
+.copy_ready{
+  width: 200px;
+  height: 44px;
+  background: black;
+  color: white;
+  position: absolute;
+  text-align: center;
+  bottom: 30px;
+  right: 30px;
+  padding-top: 13px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  opacity: 0;
+  animation: fadeIn 3.5s ease-in-out;
+}
+@keyframes fadeIn {
+  0%{opacity: 0;}
+  50%{opacity: 1;}
+  100%{opacity: 0;}
 }
 </style>
