@@ -12,7 +12,7 @@ export default {
     },
     pokemon: {
       type: Object,
-      default: ()=>{}
+      default: ()=>({})
     }
   },
   methods: {

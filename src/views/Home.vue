@@ -8,14 +8,14 @@
       ItemPokemonList(:pokemonName="pokemon.name" v-for="(pokemon, key) in pokemonList" :key="key" @openModalDetail="viewDetail")
         star-favorite(:isFavorite="pokemon.isFavorite" :pokemon="pokemon")
     ul(v-else-if="!isActiveFavoritesList && isPokemonItemActives && !isEmpty")
-      ItemPokemonList(:pokemonName="pokemonItem[pokemonItem.length -1].name")
+      ItemPokemonList(:pokemonName="pokemonItem[pokemonItem.length -1].name" @openModalDetail="viewDetail")
         star-favorite(:isFavorite="pokemonItem[pokemonItem.length -1].isFavorite" :pokemon="pokemonItem[pokemonItem.length -1]")
     .empty_data(v-else-if="isEmpty")
       h1 Uh-oh!
       p You look lost on your journey!
       button-pokemon(:text="'Go back home'" :onClickEvent="getPokemonList")
     ul(v-else)
-      ItemPokemonList(:pokemonName="pokemon.name" v-for="(pokemon, key) in favorites" :key="key")
+      ItemPokemonList(:pokemonName="pokemon.name" v-for="(pokemon, key) in favorites" :key="key" @openModalDetail="viewDetail")
         star-favorite(:isFavorite="pokemon.isFavorite" :pokemon="pokemon")
   footer(v-if="!isEmpty")
     .content_footer
@@ -75,14 +75,18 @@ export default {
       let name = `/${this.setText}`;
       this.getPokemon(name, 'modal')
     },
-    closeModalDetail() {
-      this.getPokemonList();
-      this.showModalDetail = false;
-    },
     searchPokemon (text) {
       this.setText = text.toLowerCase();
       let setText = `/${this.setText}`;
       this.getPokemon(setText);
+    },
+    closeModalDetail() {
+      if(!this.isActiveFavoritesList && !this.isPokemonItemActives){
+        this.getPokemonList();
+        this.showModalDetail = false;
+        return
+      }
+      this.showModalDetail = false;
     },
     getFavoritesList() {
       this.$refs.searchRef.inputClear();

@@ -18,11 +18,6 @@ const routes = [
     name: "Home",
     component: loadView('Home'),
   },
-  {
-    path: "/about",
-    name: "About",
-    component: loadView('About'),
-  },
 ];
 
 const router = new VueRouter({
